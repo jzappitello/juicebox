@@ -1,6 +1,11 @@
 const { Client } = require('pg');
 
-async function createUser({ username, password }) {
+const client = new Client('postgres://localhost:5432/juicebox-dev');
+
+async function createUser({ 
+    username, 
+    password
+    }) {
     try {
         const { rows } = await client.query(`
             INSERT INTO users(username, password)
@@ -8,14 +13,22 @@ async function createUser({ username, password }) {
             ON CONFLICT (username) DO NOTHING
             RETURNING *;
         `,[username, password]);
-        return rows
+        return rows;
     } catch (error) {
         throw error;
     }
 }
 
-const client = new Client('postgres://localhost:5432/juicebox-dev');
+async function getAllUsers() {
+    const { rows } = await client.query(
+        `SELECT id, username
+        FROM users;
+        `);
+    return rows;
+}
+
 module.exports = {
     client,
     createUser,
+    getAllUsers,
 }
